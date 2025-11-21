@@ -1,42 +1,36 @@
-// Timestamp Microservice - Node.js / Express
-// Cumple con los requisitos del proyecto FreeCodeCamp
-
-const express = require('express');
+const express = require("express");
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-// Sin parámetro → fecha actual
-app.get('/api', (req, res) => {
-  const now = new Date();
-  res.json({
-    unix: now.getTime(),
-    utc: now.toUTCString()
-  });
-});
+app.get("/api/:date?", (req, res) => {
+  let date = req.params.date;
 
-// Con parámetro
-app.get('/api/:date', (req, res) => {
-  const date = req.params.date;
-
-  let parsedDate;
-
-  if (/^\d+$/.test(date)) {
-    parsedDate = new Date(parseInt(date));
-  } else {
-    parsedDate = new Date(date);
+  // Si no hay parámetro, usar fecha actual
+  if (!date) {
+    const now = new Date();
+    return res.json({
+      unix: now.getTime(),
+      utc: now.toUTCString()
+    });
   }
 
-  if (parsedDate.toString() === 'Invalid Date') {
+  // Si es un número → timestamp
+  let parsedDate = /^\d+$/.test(date)
+    ? new Date(parseInt(date))
+    : new Date(date);
+
+  // Validar fecha
+  if (parsedDate.toString() === "Invalid Date") {
     return res.json({ error: "Invalid Date" });
   }
 
+  // Respuesta correcta
   res.json({
     unix: parsedDate.getTime(),
     utc: parsedDate.toUTCString()
   });
 });
 
-
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en puerto ${PORT}`);
+const port = 3000;
+app.listen(port, () => {
+  console.log("Servidor funcionando en puerto " + port);
 });
